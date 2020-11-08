@@ -29,17 +29,25 @@ class UploadController extends Controller
 
                                
             $file= $request->allFiles()['images'][$i];
-
             $path= $file->getRealPath();
+
             $size= getimagesize($path);
             $byte= filesize($path); //bytes  -- verificar precisão
-
+            
+            
 
             $image= new Image();
             $image->name= $file->getClientOriginalName(); // retirar o .jpg
             $image->extension= $file->getClientOriginalExtension();
-            $image->width= $size[0];  //largura
-            $image->heigth= $size[1];  //altura
+            
+            if(!$size){
+                $image->width= 0;  
+                $image->heigth= 0;
+            }else{
+                $image->width= $size[0];  //largura
+                $image->heigth= $size[1];  //altura
+            }
+            
             $image->size= $byte;
             $image->path= $file->storeAs('temp', $image->name, 's3');
 

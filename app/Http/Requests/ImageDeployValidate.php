@@ -25,7 +25,7 @@ class ImageDeployValidate extends FormRequest
     {
         return [
             'images' => 'required',
-            'images.*' => 'mimes:jpeg,png',
+            'images.*' => 'mimes:jpeg,png,svg',
         ];
     }
 
