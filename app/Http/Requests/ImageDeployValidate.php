@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ImageName;
+
 
 class ImageDeployValidate extends FormRequest
 {
@@ -25,7 +27,10 @@ class ImageDeployValidate extends FormRequest
     {
         return [
             'images' => 'required',
-            'images.*' => 'mimes:jpeg,png,svg',
+            //'images.*' => 'mimes:jpeg,png,svg',
+            'images.*' => ['mimes:jpeg,png,svg', new ImageName],
+            //'images.*' =>  new ImageName,
+            
         ];
     }
 
@@ -33,7 +38,7 @@ class ImageDeployValidate extends FormRequest
 
         return [
             'images.required' => 'Nenhum arquivo inserido.',
-            'images.*.mimes' => 'Um ou mais arquivos estão no formato incorreto.'
+            'images.*.mimes' => 'Um ou mais arquivos estão no formato incorreto.',
         ];
     }
     

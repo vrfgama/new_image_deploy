@@ -34,7 +34,6 @@ class UploadController extends Controller
             $size= getimagesize($path);
             $byte= filesize($path); //bytes  -- verificar precisão
             
-            
 
             $image= new Image();
             $image->name= $file->getClientOriginalName(); // retirar o .jpg
