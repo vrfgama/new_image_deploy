@@ -21,7 +21,8 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
+    // public const HOME = '/home';
+    public const HOME = '/image-deploy/input-view';
 
     /**
      * Define your route model bindings, pattern filters, etc.

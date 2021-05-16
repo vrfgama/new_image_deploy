@@ -15,9 +15,18 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::get('/', function () {
+    return view('index');
+});
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+
 Route::group(['prefix'=> 'image-deploy'], function(){
     // fazer rota do login
-    Route::get('/input-view','UploadController@inputView');
+    Route::get('/input-view','UploadController@inputView')->middleware('auth');  // redireciona usuarios não logados
     Route::post('/upload', 'UploadController@upload');
     Route::get('/deploy', 'UploadController@deploy');
 
