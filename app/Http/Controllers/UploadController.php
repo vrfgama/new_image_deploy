@@ -10,6 +10,7 @@ use App\Deploy;
 use App\Http\Requests\ImageDeployValidate;
 use Session;
 use Redirect;
+use Intervention;
 
 
 class UploadController extends Controller
@@ -34,11 +35,11 @@ class UploadController extends Controller
             $size= getimagesize($path);
             $byte= filesize($path); //bytes  -- verificar precisão
             
-
             $image= new Image();
             $image->name= $file->getClientOriginalName(); // retirar o .jpg
             $image->extension= $file->getClientOriginalExtension();
             
+
             if(!$size){
                 $image->width= 0;  
                 $image->heigth= 0;
@@ -48,8 +49,18 @@ class UploadController extends Controller
             }
             
             $image->size= $byte;
-            $image->path= $file->storeAs('temp', $image->name, 's3');
+            $image->path= 'temp/'.$image->name;
 
+            //main
+            $resize_main= Intervention::make($file);
+            $resize_main->resize(500,500);
+            Storage::disk('s3')->put('temp/'.$image->name, $resize_main->stream());             
+    
+            //thumbnail
+            $resize_thumbnail= Intervention::make($file);
+            $resize_thumbnail->resize(160,160);
+            Storage::disk('s3')->put('temp-thumbnail/'.$image->name, $resize_thumbnail->stream());    
+           
             $array[]= $image;
                 
         }
@@ -83,7 +94,7 @@ class UploadController extends Controller
 
                         
             Storage::disk('s3')->copy('temp/'.$image->name, 'homolog/images/'.$this->folder($image->name).'/'.$image->name);
-            Storage::disk('s3')->copy('temp/'.$image->name, 'homolog/images/thumbs/'.$this->folder($image->name).'/'.$image->name);
+            Storage::disk('s3')->copy('temp-thumbnail/'.$image->name, 'homolog/images/thumbs/'.$this->folder($image->name).'/'.$image->name);
             
 
             $image->deploy_id= $deploy->id;
@@ -94,6 +105,7 @@ class UploadController extends Controller
         Session::forget('array');
             
         Storage::disk('s3')->deleteDirectory('temp/');
+        Storage::disk('s3')->deleteDirectory('temp-thumbnail/');
         
         return Redirect::to('image-deploy/input-view');   
 
@@ -114,6 +126,7 @@ class UploadController extends Controller
     public function cancel(){
 
         Storage::disk('s3')->deleteDirectory('temp/');
+        Storage::disk('s3')->deleteDirectory('temp-thumbnail/');
         return view('input_view');
     }
 
